@@ -1,7 +1,10 @@
+const API_VERSION_MAJOR = "3";
+const API_VERSION_MINOR = "1";
+
 var nectarApp = angular.module('nectarWebApp', ["ngRoute"]);
 
-nectarApp.service('LoginService', function() {
-   var userIsLoggedIn = false;
+nectarApp.service('LoginService', function($http) {
+    var userIsLoggedIn = false;
 
     this.setUserLoggedIn = function(value){
         userIsLoggedIn = value;
@@ -9,7 +12,21 @@ nectarApp.service('LoginService', function() {
 
     this.getUserLoggedIn = function() {
         return userIsLoggedIn;
-    }; 
+    };
+    
+    this.doLogin = function(login) {
+        $http({
+            method: 'GET',
+            url: '/nectar/api/v/' + API_VERSION_MAJOR + "/" + API_VERSION_MINOR + "/session/managementTokenRequest?"
+            + "username=" + login.username + "&password=" + login.password
+            // TODO
+        }).then(function successCallback(response) {
+        // this callback will be called asynchronously
+        // when the response is available
+        }, function errorCallback(response) {
+            
+        });
+    };
 });
 
 nectarApp.config(['$routeProvider', function($routeProvider){
@@ -39,17 +56,8 @@ nectarApp.controller('LoginController', function LoginController($scope, $locati
         $location.path(view); // path not hash
     };
     $scope.doLogin = function(login) {
-        alert(LoginService.getUserLoggedIn());
+        //alert("Login Status: " + LoginService.getUserLoggedIn());
+        LoginService.doLogin(login);
         //$scope.loginInformation = angular.copy(login);
-        /*$http({
-            method: 'GET',
-            url: '/'
-        }).then(function successCallback(response) {
-        // this callback will be called asynchronously
-        // when the response is available
-        }, function errorCallback(response) {
-        // called asynchronously if an error occurs
-        // or server returns response with an error status.
-        });*/
     };
 });
