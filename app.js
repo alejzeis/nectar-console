@@ -61,7 +61,7 @@ var nectarApp = angular.module('nectarWebApp', ["ngRoute"], function($httpProvid
     }];
 });
 
-nectarApp.service('LoginService', function($http) {
+nectarApp.service('LoginService', function($http, $timeout) {
     var userIsLoggedIn = false;
 
     this.setUserLoggedIn = function(value){
@@ -72,7 +72,7 @@ nectarApp.service('LoginService', function($http) {
         return userIsLoggedIn;
     };
 
-    this.doLogin = function(login) {
+    this.doLogin = function(login, LoginService, $scope) {
         $.post(URL_PREFIX + 'nectar/api/v/' + API_VERSION_MAJOR + "/" + API_VERSION_MINOR + "/session/mgmtTokenRequest",
             {
                 username: login.user,
@@ -87,6 +87,12 @@ nectarApp.service('LoginService', function($http) {
 
             document.getElementById("successAlertText").innerHTML = "Successfully logged in! Redirecting to panel...";
             $('#successAlert').show();
+
+            LoginService.setUserLoggedIn(true);
+
+            $timeout(function () {
+                $scope.changeView("panel");
+            }, 2000);
         }).fail(function(data, status, xhr) {
             // TODO: seperate messages based on status code
             console.error("Got response for mgmtTokenRequest FAILURE: " + data.status + " " + data.statusText);
@@ -96,30 +102,6 @@ nectarApp.service('LoginService', function($http) {
             document.getElementById("failureAlertText").innerHTML = "Failed to login to server! Please check your username and password.";
             $('#failureAlert').show();
         });
-        /*
-        $http({
-            method: 'POST',
-            url: URL_PREFIX + 'nectar/api/v/' + API_VERSION_MAJOR + "/" + API_VERSION_MINOR + "/session/mgmtTokenRequest",
-            data: {
-                username: login.user,
-                password: login.password
-            }
-        }).success(function successCallback(response) {
-            $('#noticeAlert').hide();
-            $('#warnAlert').hide();
-            $('#failureAlert').hide();
-
-            console.log("Login success!");
-
-            document.getElementById("successAlertText").innerHTML = "Successfully logged in! Redirecting to panel...";
-            $('#successAlert').show();
-        }).error(function errorCallback(response) {
-            $('#successAlert').hide();
-
-            console.log("Failed to login into server! (server returned: " + response.status + " \"" + response.body + "\")");
-            document.getElementById("failureAlertText").innerHTML = "Failed to login to server! Please check your username and password.";
-            $('#failureAlert').show();
-        });*/
     };
 });
 
@@ -159,7 +141,7 @@ nectarApp.controller('LoginController', function LoginController($scope, $locati
     };
     $scope.doLogin = function(login) {
         //alert("Login Status: " + LoginService.getUserLoggedIn());
-        LoginService.doLogin(login);
+        LoginService.doLogin(login, LoginService, $scope);
         //$scope.loginInformation = angular.copy(login);
     };
 });
