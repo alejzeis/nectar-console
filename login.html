@@ -1,41 +1,52 @@
-<div class="row center" ng-controller="LoginController">
+<div class="row center" ng-controller="LoginController" ng-init="init()">
     <div class="col-md-3"/>
-    
+
     <div class="col-md-5">
         <div class="well bs-component">
-          <div class="alert alert-dismissible alert-success">
-            <button type="button" class="close" data-dismiss="alert">×</button>
-            <strong>Place Holder</strong>
-          </div>
-          
-          <form class="form-horizontal">
-            <fieldset>
-              <legend>Login</legend>
-              <div class="form-group">
-                <label for="inputUser" class="col-md-2 control-label">Username</label>
-        
-                <div class="col-md-10">
-                  <input type="text" class="form-control" id="inputUser" placeholder="Username" ng-model="login.user">
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="inputPassword" class="col-md-2 control-label">Password</label>
-        
-                <div class="col-md-10">
-                  <input type="password" class="form-control" id="inputPassword" placeholder="Password" ng-model="login.password">
-                </div>
-              </div>
-              <div class="form-group">
-                <div class="col-md-8 col-md-offset-2">
-                  <button type="submit" class="btn btn-primary" ng-click="doLogin(login)">Log in</button>
-                </div>
-              </div>
-            </fieldset>
-          </form>
+            <div id="noticeAlert" class="alert alert-info">
+                <strong id="noticeAlertText">Attempting to connect to server...</strong>
+            </div>
+
+            <div id="successAlert" class="alert alert-success">
+                <strong id="successAlertText">Success Text</strong>
+            </div>
+
+            <div id="warnAlert" class="alert alert-warning">
+                <strong id="warnAlertText">Warning Text</strong>
+            </div>
+
+            <div id="failureAlert" class="alert alert-danger">
+                <strong id="failureAlertText">Failure Text</strong>
+            </div>
+
+            <form class="form-horizontal">
+                <fieldset>
+                    <legend>Login</legend>
+                    <div class="form-group">
+                        <label for="inputUser" class="col-md-2 control-label">Username</label>
+
+                        <div class="col-md-10">
+                            <input type="text" class="form-control" id="inputUser" placeholder="Username" ng-model="login.user">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputPassword" class="col-md-2 control-label">Password</label>
+
+                        <div class="col-md-10">
+                            <input type="password" class="form-control" id="inputPassword" placeholder="Password" ng-model="login.password">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-8 col-md-offset-2">
+                          <button type="submit" class="btn btn-primary" ng-click="doLogin(login)">Log in</button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
         </div>
     </div>
     <div class="col-md-3">
-      <pre>login = {{login | json}}</pre>
-      <pre>loginStatus = {{loginStatus}}</pre>
+        <pre>login = {{login | json}}</pre>
+        <pre>loginStatus = {{loginStatus}}</pre>
     </div>
 </div>
