@@ -118,7 +118,7 @@ nectarApp.config(['$routeProvider', function($routeProvider){
 }]).run(function($rootScope, LoginService){
     $rootScope.$on('$routeChangeStart', function (event, next) {
         if(next.requireLogin && !LoginService.getUserLoggedIn()) {
-            alert("You need to be authenticated to see this page!");
+            alert("You need to be logged in as an administrator to see this page!");
             event.preventDefault();
         }
     });
