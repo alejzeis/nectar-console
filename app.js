@@ -1,3 +1,4 @@
+// UTILITY METHODS ----------------------------------------------------------------------------------------------
 //const URL_PREFIX = "/";
 const URL_PREFIX = "http://localhost:8080/";
 
@@ -16,6 +17,8 @@ function doInitalRequest($http) {
         document.getElementById("warnAlertText").innerHTML = "Failed to connect to server for inital check!";
     });
 }
+
+// ANGULAR -------------------------------------------------------------------------------------------------------
 
 var nectarApp = angular.module('nectarWebApp', ["ngRoute"], function($httpProvider) {
     $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
@@ -62,24 +65,32 @@ var nectarApp = angular.module('nectarWebApp', ["ngRoute"], function($httpProvid
 });
 
 nectarApp.service('LoginService', function($http, $timeout) {
-    var userIsLoggedIn = false;
-
     this.setUserLoggedIn = function(value){
-        userIsLoggedIn = value;
+        sessionStorage.userIsLoggedIn = value;
     };
 
     this.getUserLoggedIn = function() {
-        return userIsLoggedIn;
+        return sessionStorage.userIsLoggedIn;
     };
 
-    this.doLogin = function(login, LoginService, $scope) {
+    this.getSessionToken = function() {
+        return sessionStorage.sessionToken;
+    };
+
+    this.setSessionToken = function(token) {
+        sessionStorage.sessionToken = token;
+    }
+
+    this.doLogin = function(login, LoginService, $scope, $rootScope) {
         $.post(URL_PREFIX + 'nectar/api/v/' + API_VERSION_MAJOR + "/" + API_VERSION_MINOR + "/session/mgmtTokenRequest",
             {
                 username: login.user,
                 password: login.password
             }
         ).done(function(data, status, xhr) {
-            console.log("Got response for mgmtTokenRequest SUCCESS: " + data.status + " " + data.statusText);
+            console.log("Got response for mgmtTokenRequest SUCCESS: " + xhr.status + " " + xhr.statusText);
+
+            LoginService.setSessionToken(xhr.responseText);
 
             $('#noticeAlert').hide();
             $('#warnAlert').hide();
@@ -91,16 +102,44 @@ nectarApp.service('LoginService', function($http, $timeout) {
             LoginService.setUserLoggedIn(true);
 
             $timeout(function () {
-                $scope.changeView("panel");
-            }, 2000);
-        }).fail(function(data, status, xhr) {
+                $rootScope.changeView("panel");
+            }, 1000);
+        }).fail(function(xhr, textStatus, errorThrown) {
             // TODO: seperate messages based on status code
-            console.error("Got response for mgmtTokenRequest FAILURE: " + data.status + " " + data.statusText);
+            console.error("Got response for mgmtTokenRequest FAILURE: " + xhr.status + " " + xhr.statusText);
 
             $('#successAlert').hide();
 
             document.getElementById("failureAlertText").innerHTML = "Failed to login to server! Please check your username and password.";
             $('#failureAlert').show();
+        });
+    };
+
+    this.doLogout = function(LoginService, $scope, $rootScope) {
+        if(LoginService.getUserLoggedIn() === false) return;
+
+        $.get(URL_PREFIX + 'nectar/api/v/' + API_VERSION_MAJOR + "/" + API_VERSION_MINOR + "/session/mgmtLogout?token=" + LoginService.getSessionToken())
+        .done(function(data, status, xhr) {
+            console.log("Got response for mgmtLogout SUCCESS: " + xhr.status + " " + xhr.statusText);
+
+            LoginService.setSessionToken("");
+            LoginService.setUserLoggedIn(false);
+
+            console.log("1: " + LoginService.getUserLoggedIn());
+
+            $timeout(function () {
+                $rootScope.changeView("/");
+            }, 1000);
+        }).fail(function(xhr, textStatus, errorThrown) {
+            // TODO: seperate messages based on status code
+            console.error("Got response for mgmtLogout FAILURE: " + xhr.status + " " + xhr.statusText);
+
+            alert("Failed to logout! (" + xhr.status + " " + xhr.statusText + ")");
+
+            LoginService.setSessionToken("");
+            LoginService.setUserLoggedIn(false);
+
+            $rootScope.changeView("");
         });
     };
 });
@@ -109,39 +148,60 @@ nectarApp.config(['$routeProvider', function($routeProvider){
     $routeProvider
     .when("/", {
         templateUrl : "login.html",
-        requireLogin : false
+        requireLogin : false,
     })
     .when("/panel", {
         templateUrl : "panel.html",
         requireLogin : true
     });
-}]).run(function($rootScope, LoginService){
+}]).run(function($rootScope, $location, $timeout, LoginService){
+    $rootScope.changeView = function(view){
+        $location.path(view); // path not hash
+    };
+
     $rootScope.$on('$routeChangeStart', function (event, next) {
+        console.log(next.requireLogin + " " + LoginService.getUserLoggedIn());
+        console.log(next.requireLogin && !LoginService.getUserLoggedIn());
+
         if(next.requireLogin && !LoginService.getUserLoggedIn()) {
+            console.log("No access to panel: not logged in.");
+
             alert("You need to be logged in as an administrator to see this page!");
             event.preventDefault();
+
+            $timeout(function () {
+                $rootScope.changeView("/");
+            }, 500);
         }
     });
 });
 
 nectarApp.controller('LoginController', function LoginController($scope, $location, $rootScope, $http, LoginService) {
-    $scope.loginInformation = { };
-    $scope.loginStatus = LoginService.getUserLoggedIn();
-
     $scope.init = function() {
         $('#successAlert').hide();
         $('#warnAlert').hide();
         $('#failureAlert').hide();
 
-        doInitalRequest($http);
+        console.log("2: " + LoginService.getUserLoggedIn());
+
+        if(LoginService.getUserLoggedIn() === true) {
+            // Redirect to panel if already logged in.
+            alert("You are already logged in, redirecting to panel...");
+            $rootScope.changeView("/panel");
+        } else {
+            doInitalRequest($http);
+        }
     }
 
-    $scope.changeView = function(view){
-        $location.path(view); // path not hash
-    };
     $scope.doLogin = function(login) {
         //alert("Login Status: " + LoginService.getUserLoggedIn());
-        LoginService.doLogin(login, LoginService, $scope);
+        LoginService.doLogin(login, LoginService, $scope, $rootScope);
         //$scope.loginInformation = angular.copy(login);
+    };
+});
+
+nectarApp.controller('PanelController', function PanelController($scope, $location, $rootScope, $http, LoginService) {
+    $scope.logout = function() {
+        LoginService.doLogout(LoginService, $scope, $rootScope);
     };
 });
