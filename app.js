@@ -70,7 +70,7 @@ nectarApp.service('LoginService', function($http, $timeout) {
     };
 
     this.getUserLoggedIn = function() {
-        return sessionStorage.userIsLoggedIn;
+        return sessionStorage.userIsLoggedIn == 'true';
     };
 
     this.getSessionToken = function() {
@@ -176,6 +176,15 @@ nectarApp.config(['$routeProvider', function($routeProvider){
     });
 });
 
+nectarApp.controller('exitController', function exitController($scope, $window, $rootScope, $http, LoginService) {
+    $scope.onExit = function() {
+        if(LoginService.getUserLoggedIn())
+            LoginService.doLogout(LoginService, $scope, $rootScope);
+    };
+
+    $window.onbeforeunload = $scope.onExit;
+});
+
 nectarApp.controller('LoginController', function LoginController($scope, $location, $rootScope, $http, LoginService) {
     $scope.init = function() {
         $('#successAlert').hide();
@@ -200,7 +209,7 @@ nectarApp.controller('LoginController', function LoginController($scope, $locati
     };
 });
 
-nectarApp.controller('PanelController', function PanelController($scope, $location, $rootScope, $http, LoginService) {
+nectarApp.controller('PanelController', function PanelController($scope, $rootScope, $http, LoginService) {
     $scope.logout = function() {
         LoginService.doLogout(LoginService, $scope, $rootScope);
     };
