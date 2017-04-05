@@ -85,19 +85,19 @@ nectarApp.service('KeyService', function($http, $timeout) {
 
 nectarApp.service('LoginService', function($http, $timeout) {
     this.setUserLoggedIn = function(value){
-        sessionStorage.userIsLoggedIn = value;
+        localStorage.userIsLoggedIn = value;
     };
 
     this.getUserLoggedIn = function() {
-        return sessionStorage.userIsLoggedIn == 'true';
+        return localStorage.userIsLoggedIn == 'true';
     };
 
     this.getSessionToken = function() {
-        return sessionStorage.sessionToken;
+        return localStorage.sessionToken;
     };
 
     this.setSessionToken = function(token) {
-        sessionStorage.sessionToken = token;
+        localStorage.sessionToken = token;
     }
 
     this.requestNewToken = function(login, LoginService, KeyService, $scope, $rootScope) {
@@ -193,8 +193,8 @@ nectarApp.service('LoginService', function($http, $timeout) {
         .done(function(data, status, xhr) {
             console.log("Got response for mgmtLogout SUCCESS: " + xhr.status + " " + xhr.statusText);
 
-            LoginService.setSessionToken("");
             LoginService.setUserLoggedIn(false);
+            LoginService.setSessionToken("");
 
             $timeout(function () {
                 $rootScope.changeView("/");
@@ -205,8 +205,8 @@ nectarApp.service('LoginService', function($http, $timeout) {
 
             alert("Failed to logout! (" + xhr.status + " " + xhr.statusText + ")");
 
-            LoginService.setSessionToken("");
             LoginService.setUserLoggedIn(false);
+            LoginService.setSessionToken("");
 
             $rootScope.changeView("");
         });
