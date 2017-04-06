@@ -3,7 +3,7 @@
 const URL_PREFIX = "http://localhost:8080/";
 
 const API_VERSION_MAJOR = "3";
-const API_VERSION_MINOR = "2";
+const API_VERSION_MINOR = "3";
 
 function doInitalRequest($http) {
     $http({
@@ -64,154 +64,7 @@ var nectarApp = angular.module('nectarWebApp', ["ngRoute"], function($httpProvid
     }];
 });
 
-nectarApp.service('KeyService', function($http, $timeout) {
-    this.downloadServerPublicKey = function() {
-        $.get(
-            "serverPublicKey.pem"
-        ).done(function(data, status, xhr) {
-            console.log("Server returned " + xhr.status + " for serverPublicKey.pem");
-
-            sessionStorage.serverPublicKeyStr = xhr.responseText;
-        }).fail(function(xhr, textStatus, errorThrown) {
-            console.error("Failed to get serverPublicKey.pem from server, returned: " + xhr.status);
-            alert("Could not get server public key from server, returned: " + xhr.status + " " + xhr.statusText)
-        });
-    };
-
-    this.getServerPublicKeyStr = function() {
-        return sessionStorage.serverPublicKeyStr;
-    };
-});
-
-nectarApp.service('LoginService', function($http, $timeout) {
-    this.setUserLoggedIn = function(value){
-        localStorage.userIsLoggedIn = value;
-    };
-
-    this.getUserLoggedIn = function() {
-        return localStorage.userIsLoggedIn == 'true';
-    };
-
-    this.getSessionToken = function() {
-        return localStorage.sessionToken;
-    };
-
-    this.setSessionToken = function(token) {
-        localStorage.sessionToken = token;
-    }
-
-    this.requestNewToken = function(login, LoginService, KeyService, $scope, $rootScope) {
-        $.post(URL_PREFIX + 'nectar/api/v/' + API_VERSION_MAJOR + "/" + API_VERSION_MINOR + "/session/mgmtTokenRequest",
-            {
-                username: login.user,
-                password: login.password
-            }
-        ).done(function(data, status, xhr) {
-            console.log("Got response for mgmtTokenRequest SUCCESS: " + xhr.status + " " + xhr.statusText);
-
-            var pubKey = KEYUTIL.getKey(KeyService.getServerPublicKeyStr());
-            var isValid = KJUR.jws.JWS.verifyJWT(xhr.responseText, pubKey, {alg: ['ES384']});
-            if(!isValid) {
-                console.error("Session token returned is invalid!");
-                alert("Failed to verify session token returned from server, CONNECTION IS NOT SECURE.");
-                return;
-            }
-
-            var payload = KJUR.jws.JWS.readSafeJSONString(b64utoutf8(xhr.responseText.split(".")[1]));
-
-            LoginService.setSessionToken(xhr.responseText);
-            LoginService.setUserLoggedIn(true);
-
-            $timeout(function () {
-                LoginService.requestNewToken(login, LoginService, KeyService, $scope, $rootScope);
-            }, payload.expires + 500);
-        }).fail(function(xhr, textStatus, errorThrown) {
-            // TODO: seperate messages based on status code
-            console.error("Got response for mgmtTokenRequest FAILURE: " + xhr.status + " " + xhr.statusText);
-
-            $('#successAlert').hide();
-
-            document.getElementById("failureAlertText").innerHTML = "Failed to login to server! Please check your username and password.";
-            $('#failureAlert').show();
-        });
-    }
-
-    this.doLogin = function(login, LoginService, KeyService, $scope, $rootScope) {
-        $.post(URL_PREFIX + 'nectar/api/v/' + API_VERSION_MAJOR + "/" + API_VERSION_MINOR + "/session/mgmtTokenRequest",
-            {
-                username: login.user,
-                password: login.password
-            }
-        ).done(function(data, status, xhr) {
-            console.log("Got response for mgmtTokenRequest SUCCESS: " + xhr.status + " " + xhr.statusText);
-
-            var pubKey = KEYUTIL.getKey(KeyService.getServerPublicKeyStr());
-            var isValid = KJUR.jws.JWS.verifyJWT(xhr.responseText, pubKey, {alg: ['ES384']});
-            if(!isValid) {
-                console.error("Session token returned is invalid!");
-                $('#successAlert').hide();
-
-                document.getElementById("failureAlertText").innerHTML = "CONNECTION IS NOT SECURE: Server returned invalid session token.";
-                $('#failureAlert').show();
-                return;
-            } else {
-                LoginService.setSessionToken(xhr.responseText);
-                LoginService.setUserLoggedIn(true);
-
-                $('#noticeAlert').hide();
-                $('#warnAlert').hide();
-                $('#failureAlert').hide();
-
-                document.getElementById("successAlertText").innerHTML = "Successfully logged in! Redirecting to panel...";
-                $('#successAlert').show();
-
-                var payload = KJUR.jws.JWS.readSafeJSONString(b64utoutf8(xhr.responseText.split(".")[1]));
-
-                $timeout(function () {
-                    $rootScope.changeView("panel");
-                }, 1000);
-
-                $timeout(function () {
-                    LoginService.requestNewToken(login, LoginService, KeyService, $scope, $rootScope);
-                }, payload.expires + 500);
-            }
-        }).fail(function(xhr, textStatus, errorThrown) {
-            // TODO: seperate messages based on status code
-            console.error("Got response for mgmtTokenRequest FAILURE: " + xhr.status + " " + xhr.statusText);
-
-            $('#successAlert').hide();
-
-            document.getElementById("failureAlertText").innerHTML = "Failed to login to server! Please check your username and password.";
-            $('#failureAlert').show();
-        });
-    };
-
-    this.doLogout = function(LoginService, $scope, $rootScope) {
-        if(LoginService.getUserLoggedIn() === false) return;
-
-        $.get(URL_PREFIX + 'nectar/api/v/' + API_VERSION_MAJOR + "/" + API_VERSION_MINOR + "/session/mgmtLogout?token=" + LoginService.getSessionToken())
-        .done(function(data, status, xhr) {
-            console.log("Got response for mgmtLogout SUCCESS: " + xhr.status + " " + xhr.statusText);
-
-            LoginService.setUserLoggedIn(false);
-            LoginService.setSessionToken("");
-
-            $timeout(function () {
-                $rootScope.changeView("/");
-            }, 1000);
-        }).fail(function(xhr, textStatus, errorThrown) {
-            // TODO: seperate messages based on status code
-            console.error("Got response for mgmtLogout FAILURE: " + xhr.status + " " + xhr.statusText);
-
-            alert("Failed to logout! (" + xhr.status + " " + xhr.statusText + ")");
-
-            LoginService.setUserLoggedIn(false);
-            LoginService.setSessionToken("");
-
-            $rootScope.changeView("");
-        });
-    };
-});
+registerServices(nectarApp); // appServices.js
 
 nectarApp.config(['$routeProvider', function($routeProvider){
     $routeProvider
@@ -275,12 +128,16 @@ nectarApp.controller('LoginController', function LoginController($scope, $locati
     };
 });
 
-nectarApp.controller('PanelController', function PanelController($scope, $rootScope, $http, LoginService, KeyService) {
+nectarApp.controller('PanelController', function PanelController($scope, $rootScope, $http, $timeout, LoginService, KeyService, SyncService) {
     $scope.init = function() {
         KeyService.downloadServerPublicKey();
+
+        SyncService.syncEverything(LoginService, SyncService, $scope, $rootScope, true, null, null, null);
     };
 
     $scope.logout = function() {
         LoginService.doLogout(LoginService, $scope, $rootScope);
     };
+
+    $scope.clientsOnline = 0;
 });
