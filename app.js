@@ -1,6 +1,10 @@
 // UTILITY METHODS ----------------------------------------------------------------------------------------------
 //const URL_PREFIX = "/";
-const URL_PREFIX = "http://localhost:8080/";
+const URL_PROTOCOL = "http";
+const SERVER_ADDR = "localhost";
+const SERVER_PORT = "8080";
+
+const URL_PREFIX = URL_PROTOCOL + "://" + SERVER_ADDR + ":" + SERVER_PORT + "/";
 
 const API_VERSION_MAJOR = "3";
 const API_VERSION_MINOR = "3";
@@ -76,9 +80,17 @@ nectarApp.config(['$routeProvider', function($routeProvider){
         templateUrl : "panel.html",
         requireLogin : true
     });
-}]).run(function($rootScope, $location, $timeout, LoginService){
-    $rootScope.changeView = function(view){
+}]).run(function($rootScope, $location, $timeout, $routeParams, $anchorScroll, LoginService, SyncService){
+    $rootScope.changeView = function(view) {
         $location.path(view); // path not hash
+    };
+
+    $rootScope.scrollTo = function(id) {
+        var old = $location.hash();
+        $location.hash(id);
+        $anchorScroll();
+        //reset to old to keep any additional routing logic from kicking in
+        $location.hash(old);
     };
 
     $rootScope.$on('$routeChangeStart', function (event, next) {
@@ -104,7 +116,7 @@ nectarApp.controller('exitController', function exitController($scope, $window, 
     $window.onbeforeunload = $scope.onExit;
 });
 
-nectarApp.controller('LoginController', function LoginController($scope, $location, $rootScope, $http, LoginService, KeyService) {
+nectarApp.controller('LoginController', function LoginController($scope, $location, $rootScope, $http, LoginService, KeyService, SyncService) {
     $scope.init = function() {
         $('#successAlert').hide();
         $('#warnAlert').hide();
@@ -123,7 +135,7 @@ nectarApp.controller('LoginController', function LoginController($scope, $locati
 
     $scope.doLogin = function(login) {
         //alert("Login Status: " + LoginService.getUserLoggedIn());
-        LoginService.doLogin(login, LoginService, KeyService, $scope, $rootScope);
+        LoginService.doLogin(login, LoginService, KeyService, SyncService, $scope, $rootScope);
         //$scope.loginInformation = angular.copy(login);
     };
 });
@@ -140,4 +152,5 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
     };
 
     $scope.clientsOnline = 0;
+    $scope.serverName = SERVER_ADDR;
 });

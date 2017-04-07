@@ -35,7 +35,7 @@ function registerServices(nectarApp) {
             localStorage.sessionToken = token;
         }
 
-        this.requestNewToken = function(login, LoginService, KeyService, $scope, $rootScope) {
+        this.requestNewToken = function(login, LoginService, KeyService, SyncService, $scope, $rootScope) {
             $.post(URL_PREFIX + 'nectar/api/v/' + API_VERSION_MAJOR + "/" + API_VERSION_MINOR + "/session/mgmtTokenRequest",
                 {
                     username: login.user,
@@ -71,7 +71,7 @@ function registerServices(nectarApp) {
             });
         }
 
-        this.doLogin = function(login, LoginService, KeyService, $scope, $rootScope) {
+        this.doLogin = function(login, LoginService, KeyService, SyncService, $scope, $rootScope) {
             $.post(URL_PREFIX + 'nectar/api/v/' + API_VERSION_MAJOR + "/" + API_VERSION_MINOR + "/session/mgmtTokenRequest",
                 {
                     username: login.user,
