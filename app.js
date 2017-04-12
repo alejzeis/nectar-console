@@ -7,15 +7,39 @@ const SERVER_PORT = "8080";
 const URL_PREFIX = URL_PROTOCOL + "://" + SERVER_ADDR + ":" + SERVER_PORT + "/";
 
 const API_VERSION_MAJOR = "3";
-const API_VERSION_MINOR = "3";
+var API_VERSION_MINOR = "3";
 
-function doInitalRequest($http) {
-    $http({
-        method: 'GET',
-        url: URL_PREFIX + 'nectar/api/infoRequest'
-    }).then(function successCallback(response) {
+var SERVER_SOFTWARE = "Unknown";
+var SERVER_SOFTWARE_VERSION = "Unknown";
+
+function doInitalRequest() {
+    $.get(
+        URL_PREFIX + 'nectar/api/infoRequest'
+    ).done(function(data, status, xhr) {
+        var json = KJUR.jws.JWS.readSafeJSONString(xhr.responseText);
+
+        if(json["apiVersionMajor"] != API_VERSION_MAJOR) {
+            $('#noticeAlert').hide();
+            $('#warnAlert').hide();
+            $('#failureAlert').show();
+
+            document.getElementById("failureAlertText").innerHTML = "Server [Major] API version (" +
+                        json["apiVersionMajor"] + ") does not match ours (" + API_VERSION_MAJOR + ")";
+            return;
+        } else if(json["apiVersionMinor"] != API_VERSION_MINOR) {
+            $('#failureAlert').hide();
+            $('#warnAlert').show();
+
+            document.getElementById("warnAlertText").innerHTML = "Warning: Server [Minor] API version (" +
+                        json["apiVersionMinor"] + ") does not match ours (" + API_VERSION_MINOR + ")";
+            API_VERSION_MINOR = json["apiVersionMinor"].toString();
+        }
+
+        SERVER_SOFTWARE = json["software"];
+        SERVER_SOFTWARE_VERSION = json["softwareVersion"];
+
         document.getElementById("noticeAlertText").innerHTML = "Successfully contacted server for inital check";
-    }, function errorCallback(response) {
+    }).fail(function(xhr, textStatus, errorThrown) {
         $('#noticeAlert').hide();
         $('#warnAlert').show();
         document.getElementById("warnAlertText").innerHTML = "Failed to connect to server for inital check!";
@@ -144,7 +168,7 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
     $scope.init = function() {
         KeyService.downloadServerPublicKey();
 
-        SyncService.syncEverything(LoginService, SyncService, $scope, $rootScope, true, null, null, null);
+        SyncService.syncEverything(LoginService, SyncService, $scope, $rootScope, $timeout, true, null, null, null, null);
     };
 
     $scope.logout = function() {
@@ -153,4 +177,7 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
 
     $scope.clientsOnline = 0;
     $scope.serverName = SERVER_ADDR;
+
+    $scope.serverSoftware = SERVER_SOFTWARE;
+    $scope.serverSoftwareVersion = SERVER_SOFTWARE_VERSION;
 });
