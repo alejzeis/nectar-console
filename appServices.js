@@ -161,4 +161,34 @@ function registerServices(nectarApp) {
             syncUsers(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart);
         }
     });
+
+    nectarApp.service('ServerOperationsService', function() {
+        this.registerUser = function(LoginService, $scope, $rootScope, userData) {
+            if(!LoginService.getUserLoggedIn()) return;
+
+            $.post(URL_PREFIX + 'nectar/api/v/' + API_VERSION_MAJOR + "/" + API_VERSION_MINOR + "/auth/registerUser",
+                {
+                    token: LoginService.getSessionToken(),
+                    user: userData.username,
+                    password: userData.password,
+                    admin: userData.isAdmin
+                }
+            ).done(function(data, status, xhr) {
+                console.log("Got response for registerUser SUCCESS: " + xhr.status + " " + xhr.statusText);
+
+                $('#userPanelFailureAlert').hide();
+
+                document.getElementById("userPanelSuccessAlertText").innerHTML = "Successfully created new user!";
+                $('#userPanelSuccessAlert').show();
+            }).fail(function(xhr, textStatus, errorThrown) {
+                // TODO: seperate messages based on status code
+                console.error("Got response for registerUser FAILURE: " + xhr.status + " " + xhr.statusText);
+
+                $('#userPanelSuccessAlert').hide();
+
+                document.getElementById("userPanelFailureAlertText").innerHTML = "Failed to create user! \"" + xhr.responseText + "\"";
+                $('#userPanelFailureAlert').show();
+            });
+        };
+    });
 }

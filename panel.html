@@ -52,7 +52,7 @@
                             <br>
 
                             <div class="form-group">
-                                <h4>Server Event Log</h4>
+                                <h4 style="font-style: bold;">Server Event Log</h4>
                                 <textarea class="form-control" rows="18" id="eventLog" readonly></textarea>
                             </div>
                         </div>
@@ -95,18 +95,77 @@
     <br id="users">
 
     <div class="container">
+
+        <div class="modal fade" id="modalUserCreate" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      <h4><i class="material-icons">account_box</i> Create a new User</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form role="form" class="form-horizontal">
+                            <fieldset>
+                                <div class="form-group">
+                                    <label for="createUsrUsername">Username</label>
+                                    <input type="text" class="form-control" id="createUsrUsername" placeholder="Enter username" ng-model="createUser.username">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="createUsrPassword">Password</label>
+                                    <input type="text" class="form-control" id="createUsrPassword" placeholder="Enter password" ng-model="createUser.password">
+                                </div>
+
+                                <div class="form-group">
+                                    <input id="createUsrIsAdmin" type="checkbox" ng-model="createUser.isAdmin">
+                                    <label for="createUserIsAdmin">Is Admin</label>
+                                </div>
+
+                                <br>
+
+                                <button type="submit" class="btn btn-success btn-block" ng-click="createNewUser(createUser)"><i class="material-icons">done</i> Create</button>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="panel panel-primary">
             <div class="panel-heading">
                 <h3 class="panel-title">User Management</h3>
             </div>
             <div class="panel-body">
-                <div class="col-md-6">
+
+                <div id="userPanelSuccessAlert" class="alert alert-success">
+                    <strong id="userPanelSuccessAlertText">Success Text</strong>
+                </div>
+
+                <div id="userPanelFailureAlert" class="alert alert-danger">
+                    <strong id="userPanelFailureAlertText">Failure Text</strong>
+                </div>
+
+                <div class="col-md-8">
                     <div class="panel panel-info">
                         <div class="panel-heading">
                             <h3 class="panel-title">Users Online</h3>
                         </div>
                         <div class="panel-body">
                             <canvas id="usersChart" class="img-responsive" style="width: 100%; height: auto;"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="panel panel-info center">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">User Actions</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="btn-group-vertical">
+                                <button type="button" class="btn btn-success btn-lg btn-raised" id="btnUserCreate" ng-click="openUserCreateModal()">Create a new User</button>
+                                <button type="button" class="btn btn-warning btn-lg btn-raised" id="btnUserRemove">Remove a User</button>
+                            </div>
                         </div>
                     </div>
                 </div>

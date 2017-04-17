@@ -164,8 +164,11 @@ nectarApp.controller('LoginController', function LoginController($scope, $locati
     };
 });
 
-nectarApp.controller('PanelController', function PanelController($scope, $rootScope, $http, $timeout, LoginService, KeyService, SyncService) {
+nectarApp.controller('PanelController', function PanelController($scope, $rootScope, $http, $timeout, LoginService, KeyService, SyncService, ServerOperationsService) {
     $scope.init = function() {
+        $('#userPanelSuccessAlert').hide();
+        $('#userPanelFailureAlert').hide();
+
         KeyService.downloadServerPublicKey();
 
         SyncService.syncEverything(LoginService, SyncService, $scope, $rootScope, $timeout, true, null, null, null, null);
@@ -173,6 +176,21 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
 
     $scope.logout = function() {
         LoginService.doLogout(LoginService, $scope, $rootScope);
+    };
+
+    $scope.openUserCreateModal = function() {
+        $("#modalUserCreate").modal("show");
+    };
+
+    $scope.createNewUser = function(userData) {
+        if(userData === null) return; // Check if they didn't enter anything
+        if(userData.username == "") return;
+        if(userData.password == "") return;
+        if(userData.isAdmin == null) userData.isAdmin = false; // If the user never checks the box it is undefined
+
+        ServerOperationsService.registerUser(LoginService, $scope, $rootScope, userData);
+
+        $("#modalUserCreate").modal("hide");
     };
 
     $scope.clientsOnline = 0;
