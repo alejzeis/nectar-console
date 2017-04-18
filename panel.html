@@ -114,7 +114,7 @@
 
                                 <div class="form-group">
                                     <label for="createUsrPassword">Password</label>
-                                    <input type="text" class="form-control" id="createUsrPassword" placeholder="Enter password" ng-model="createUser.password">
+                                    <input type="password" class="form-control" id="createUsrPassword" placeholder="Enter password" ng-model="createUser.password">
                                 </div>
 
                                 <div class="form-group">
@@ -125,6 +125,32 @@
                                 <br>
 
                                 <button type="submit" class="btn btn-success btn-block" ng-click="createNewUser(createUser)"><i class="material-icons">done</i> Create</button>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modalUserRemove" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      <h4><i class="material-icons">account_box</i> Remove a User</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form role="form" class="form-horizontal">
+                            <fieldset>
+                                <div class="form-group">
+                                    <label for="removeUsrUsername">Username</label>
+                                    <input type="text" class="form-control" id="removeUsrUsername" placeholder="Enter username" ng-model="removeUserData.username">
+                                </div>
+
+                                <br>
+
+                                <button type="submit" class="btn btn-danger btn-block" ng-click="removeUser(removeUserData)"><i class="material-icons">done</i> Remove</button>
                             </fieldset>
                         </form>
                     </div>
@@ -164,7 +190,7 @@
                         <div class="panel-body">
                             <div class="btn-group-vertical">
                                 <button type="button" class="btn btn-success btn-lg btn-raised" id="btnUserCreate" ng-click="openUserCreateModal()">Create a new User</button>
-                                <button type="button" class="btn btn-warning btn-lg btn-raised" id="btnUserRemove">Remove a User</button>
+                                <button type="button" class="btn btn-warning btn-lg btn-raised" id="btnUserRemove" ng-click="openRemoveUserModal()">Remove a User</button>
                             </div>
                         </div>
                     </div>

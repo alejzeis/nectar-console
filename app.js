@@ -179,8 +179,14 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
     };
 
     $scope.openUserCreateModal = function() {
-        $("#modalUserCreate").modal("show");
+        $("#modalUserCreate").modal("toggle");
+        console.log("Opened user create modal.");
     };
+
+    $scope.openRemoveUserModal = function() {
+        $("#modalUserRemove").modal("toggle");
+        console.log("opened user remove modal.");
+    }
 
     $scope.createNewUser = function(userData) {
         if(userData === null) return; // Check if they didn't enter anything
@@ -190,8 +196,17 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
 
         ServerOperationsService.registerUser(LoginService, $scope, $rootScope, userData);
 
-        $("#modalUserCreate").modal("hide");
+        $("#modalUserCreate").modal("toggle");
     };
+
+    $scope.removeUser = function(userData) {
+        if(userData === null) return;
+        if(userData.username == "") return;
+
+        ServerOperationsService.removeUser(LoginService, $scope, $rootScope, userData);
+
+        $("#modalUserRemove").modal("toggle");
+    }
 
     $scope.clientsOnline = 0;
     $scope.serverName = SERVER_ADDR;

@@ -190,5 +190,26 @@ function registerServices(nectarApp) {
                 $('#userPanelFailureAlert').show();
             });
         };
+
+        this.removeUser = function(LoginService, $scope, $rootScope, userData) {
+            $.get(URL_PREFIX + 'nectar/api/v/' + API_VERSION_MAJOR + "/" + API_VERSION_MINOR + "/auth/removeUser?token="
+                    + LoginService.getSessionToken() + "&user=" + userData.username
+            ).done(function(data, status, xhr) {
+                console.log("Got response for removeUser SUCCESS: " + xhr.status + " " + xhr.statusText);
+
+                $('#userPanelFailureAlert').hide();
+
+                document.getElementById("userPanelSuccessAlertText").innerHTML = "Successfully removed user!";
+                $('#userPanelSuccessAlert').show();
+            }).fail(function(xhr, textStatus, errorThrown) {
+                // TODO: seperate messages based on status code
+                console.error("Got response for removeUser FAILURE: " + xhr.status + " " + xhr.statusText);
+
+                $('#userPanelSuccessAlert').hide();
+
+                document.getElementById("userPanelFailureAlertText").innerHTML = "Failed to remove user! \"" + xhr.responseText + "\"";
+                $('#userPanelFailureAlert').show();
+            });
+        };
     });
 }
