@@ -12,7 +12,7 @@
             </div>
             <div id="navbar" class="collapse navbar-collapse">
                 <ul class="nav navbar-nav">
-                    <li class="active" ng-click="scrollTo('main')"><a>Main Panel</a></li>
+                    <li class="active" ng-click="scrollTo('clients')"><a>Client Management</a></li>
                     <li><a ng-click="scrollTo('users')">User Management</a></li>
                     <li><a ng-click="scrollTo('fts')">FTS management</a></li>
                 </ul>
@@ -25,7 +25,7 @@
         </div>
     </nav>
 
-    <br id="main">
+    <br id="clients">
 
     <div class="container">
 
@@ -35,10 +35,10 @@
 
         <div class="panel panel-primary">
             <div class="panel-heading">
-                <h3 class="panel-title">Main Panel</h3>
+                <h3 class="panel-title">Clients Management</h3>
             </div>
             <div class="panel-body">
-                <div class="col-md-6">
+                <div class="col-md-8">
                     <div class="panel panel-info">
                         <div class="panel-heading">
                             <h3 class="panel-title">Server "{{serverName}}"</h3>
@@ -52,14 +52,26 @@
                             <br>
 
                             <div class="form-group">
-                                <h4 style="font-style: bold;">Server Event Log</h4>
-                                <textarea class="form-control" rows="18" id="eventLog" readonly></textarea>
+                                <h4 style="font-weight: bold;">Server Event Log</h4>
+                                <textarea class="form-control" rows="26" id="eventLog" readonly></textarea>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-4">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Client Actions</h3>
+                        </div>
+                        <div class="panel-body center">
+                            <div class="btn-group-vertical">
+                                <button type="button" class="btn btn-info btn-lg btn-raised" id="btnClientView" ng-click="openClientsViewModal()">Manage Existing Clients</button>
+                                <button type="button" class="btn btn-success btn-lg btn-raised" id="btnClientRegister" ng-click="openClientRegisterModal()">Register a Client</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="panel panel-info">
                         <div class="panel-heading">
                             <h3 class="panel-title">Clients Status</h3>
@@ -183,12 +195,13 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="panel panel-info center">
+                    <div class="panel panel-info">
                         <div class="panel-heading">
                             <h3 class="panel-title">User Actions</h3>
                         </div>
-                        <div class="panel-body">
+                        <div class="panel-body center">
                             <div class="btn-group-vertical">
+                                <button type="button" class="btn btn-info btn-lg btn-raised" id="btnUserView" ng-click="openUsersViewModal()">Manage Existing Users</button>
                                 <button type="button" class="btn btn-success btn-lg btn-raised" id="btnUserCreate" ng-click="openUserCreateModal()">Create a new User</button>
                                 <button type="button" class="btn btn-warning btn-lg btn-raised" id="btnUserRemove" ng-click="openRemoveUserModal()">Remove a User</button>
                             </div>

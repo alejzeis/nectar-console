@@ -187,7 +187,7 @@ function syncClients(LoginService, SyncService, $scope, $rootScope, $timeout, in
         // TODO: seperate messages based on status code
         console.error("Got response for queryClients FAILURE: " + xhr.status + " " + xhr.statusText);
 
-        alert("Failed to query server! (" + xhr.status + " " + xhr.statusText + ")");
+        if(xhr.status !== 403) alert("Failed to query server! (" + xhr.status + " " + xhr.statusText + ")");
 
         $timeout(function() {
             SyncService.syncEverything(LoginService, SyncService, $scope, $rootScope, $timeout, false, clientsChart, updatesChart, operationsChart, usersChart);
@@ -249,7 +249,7 @@ function syncUsers(LoginService, SyncService, $scope, $rootScope, $timeout, init
         // TODO: seperate messages based on status code
         console.error("Got response for queryClients FAILURE: " + xhr.status + " " + xhr.statusText);
 
-        alert("Failed to query server! (" + xhr.status + " " + xhr.statusText + ")");
+        if(xhr.status !== 403) alert("Failed to query server! (" + xhr.status + " " + xhr.statusText + ")");
 
         syncClients(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart);
     });
