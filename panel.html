@@ -33,6 +33,44 @@
             <strong>There are currently {{clientsOnline}} machines online, {{usersOnline}} users online, and {{adminsOnline}} admins online.</strong>
         </div>
 
+        <div class="alert alert-danger" id="clientPanelFailureAlert">
+            <strong id="clientPanelFailureAlertText">Failure Text</strong>
+        </div>
+
+        <div class="modal fade" id="modalClientRegister" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      <h4><i class="material-icons">dns</i> Register a Client</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form role="form" class="form-horizontal">
+                            <fieldset>
+                                <button type="submit" id="btnClientRegisterModalRegister" class="btn btn-success btn-block" ng-click="registerClient()"><i class="material-icons">done</i> Generate Client Information</button>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modalClientRegisterResult" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      <h4><i class="material-icons">dns</i> New client information</h4>
+                    </div>
+                    <div class="modal-body">
+                        <h5>Client UUID: {{newClientUUID}}</h5>
+                        <h5>Client Auth String: {{newClientAuth}}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="panel panel-primary">
             <div class="panel-heading">
                 <h3 class="panel-title">Clients Management</h3>

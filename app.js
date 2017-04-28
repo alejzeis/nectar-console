@@ -166,6 +166,7 @@ nectarApp.controller('LoginController', function LoginController($scope, $locati
 
 nectarApp.controller('PanelController', function PanelController($scope, $rootScope, $http, $timeout, LoginService, KeyService, SyncService, ServerOperationsService) {
     $scope.init = function() {
+        $("#clientPanelFailureAlert").hide();
         $('#userPanelSuccessAlert').hide();
         $('#userPanelFailureAlert').hide();
 
@@ -178,6 +179,11 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
         LoginService.doLogout(LoginService, $scope, $rootScope);
     };
 
+    $scope.openClientRegisterModal = function() {
+        $("#modalClientRegister").modal("toggle");
+        console.log("Opened client register modal.");
+    };
+
     $scope.openUserCreateModal = function() {
         $("#modalUserCreate").modal("toggle");
         console.log("Opened user create modal.");
@@ -186,7 +192,13 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
     $scope.openRemoveUserModal = function() {
         $("#modalUserRemove").modal("toggle");
         console.log("opened user remove modal.");
-    }
+    };
+
+    $scope.registerClient = function() {
+        ServerOperationsService.registerClient(LoginService, $scope, $rootScope); // Register the client
+
+        $("#modalClientRegister").modal("toggle"); // Close modal
+    };
 
     $scope.createNewUser = function(userData) {
         if(userData === null) return; // Check if they didn't enter anything
@@ -206,7 +218,7 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
         ServerOperationsService.removeUser(LoginService, $scope, $rootScope, userData);
 
         $("#modalUserRemove").modal("toggle");
-    }
+    };
 
     $scope.clientsOnline = 0;
     $scope.serverName = SERVER_ADDR;

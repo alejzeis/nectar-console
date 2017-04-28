@@ -163,6 +163,36 @@ function registerServices(nectarApp) {
     });
 
     nectarApp.service('ServerOperationsService', function() {
+        this.registerClient = function(LoginService, $scope, $rootScope) {
+            if(!LoginService.getUserLoggedIn()) return;
+
+            $.post(URL_PREFIX + 'nectar/api/v/' + API_VERSION_MAJOR + "/" + API_VERSION_MINOR + "/auth/registerClient",
+                {
+                    token: LoginService.getSessionToken(),
+                    clientInfo: "{}" // TODO: Send client info and implement server-side
+                }
+            ).done(function(data, status, xhr) {
+                console.log("Got response for registerClient SUCCESS: " + xhr.status + " " + xhr.statusText);
+
+                $('#clientPanelFailureAlert').hide();
+
+                var json = KJUR.jws.JWS.readSafeJSONString(xhr.responseText);
+
+                $scope.$apply(function() {
+                    $scope.newClientUUID = json.uuid;
+                    $scope.newClientAuth = json.auth;
+                });
+
+                $('#modalClientRegisterResult').modal("toggle");
+            }).fail(function(xhr, textStatus, errorThrown) {
+                // TODO: seperate messages based on status code
+                console.error("Got response for registerClient FAILURE: " + xhr.status + " " + xhr.statusText);
+
+                document.getElementById("clientPanelFailureAlertText").innerHTML = "Failed to register client! \"" + xhr.responseText + "\"";
+                $('#clientPanelFailureAlert').show();
+            });
+        }
+
         this.registerUser = function(LoginService, $scope, $rootScope, userData) {
             if(!LoginService.getUserLoggedIn()) return;
 
