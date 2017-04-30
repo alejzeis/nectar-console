@@ -7,7 +7,7 @@ const SERVER_PORT = "8080";
 const URL_PREFIX = URL_PROTOCOL + "://" + SERVER_ADDR + ":" + SERVER_PORT + "/";
 
 const API_VERSION_MAJOR = "4";
-var API_VERSION_MINOR = "1";
+var API_VERSION_MINOR = "2";
 
 var SERVER_SOFTWARE = "Unknown";
 var SERVER_SOFTWARE_VERSION = "Unknown";
@@ -44,6 +44,21 @@ function doInitalRequest() {
         $('#warnAlert').show();
         document.getElementById("warnAlertText").innerHTML = "Failed to connect to server for inital check!";
     });
+}
+
+function convertStateToFriendly(state) {
+    switch(state) {
+        case 0:
+            return "Online";
+        case 1:
+            return "Offline";
+        case 2:
+            return "Sleeping";
+        case 3:
+            return "Restarting";
+        case 4:
+            return "Unknown";
+    }
 }
 
 // ANGULAR -------------------------------------------------------------------------------------------------------
@@ -177,6 +192,47 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
 
     $scope.logout = function() {
         LoginService.doLogout(LoginService, $scope, $rootScope);
+    };
+
+    $scope.openClientsViewModal = function() {
+        $("#modalClientView").modal("toggle");
+        console.log("Opened client view modal.");
+
+        var json = SyncService.getLastClientSyncJSONData();
+        var newTableData = "";
+
+        for(var client in json) {
+            var state = json[client]["state"];
+            var hostname = json[client]["hostname"];
+            if(json[client]["peerInfo"] != null)
+                var os = json[client]["peerInfo"]["systemInfo"]["os"];
+            else
+                var os = "?";
+
+            var updates;
+            var securityUpdates;
+
+            if(state === 0) {
+                updates = json[client]["updates"];
+                securityUpdates = json[client]["securityUpdates"];
+            } else {
+                updates = "?";
+                securityUpdates = "?";
+            }
+
+            newTableData = newTableData +
+            `
+            <tr>
+                <td>` + hostname + ` </td>
+                <td>` + convertStateToFriendly(state) + ` </td>
+                <td>` + os + ` </td>
+                <td>` + updates + ` </td>
+                <td>` + securityUpdates + ` </td>
+            </tr>
+            `;
+        }
+
+        document.getElementById("modalClientViewTableBody").innerHTML = newTableData;
     };
 
     $scope.openClientRegisterModal = function() {

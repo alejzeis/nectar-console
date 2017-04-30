@@ -79,7 +79,7 @@
                         <h4><i class="material-icons">settings</i> Manage Existing Clients</h4>
                     </div>
                     <div class="modal-body">
-                        <table class="table table-striped table-hover">
+                        <table id="modalClientViewTable" class="table table-striped table-hover">
                             <thead>
                                 <tr>
                                     <th>Hostname</th>
@@ -90,8 +90,8 @@
                                     <th>Signed in User</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                {{clientViewTableBody}}
+                            <tbody id="modalClientViewTableBody">
+
                             </tbody>
                         </table>
                     </div>

@@ -70,6 +70,8 @@ function syncClients(LoginService, SyncService, $scope, $rootScope, $timeout, in
         console.log("Got response for queryClients SUCCESS: " + xhr.status + " " + xhr.statusText);
 
         var json = KJUR.jws.JWS.readSafeJSONString(xhr.responseText);
+        SyncService.setLastClientSyncJSONData(json);
+        
         var data = constructClientsChartData(json, $scope);
 
         if(inital) {

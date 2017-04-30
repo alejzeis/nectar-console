@@ -66,11 +66,6 @@ function registerServices(nectarApp) {
             }).fail(function(xhr, textStatus, errorThrown) {
                 // TODO: seperate messages based on status code
                 console.error("Got response for mgmtTokenRequest FAILURE: " + xhr.status + " " + xhr.statusText);
-
-                $('#successAlert').hide();
-
-                document.getElementById("failureAlertText").innerHTML = "Failed to login to server! Please check your username and password.";
-                $('#failureAlert').show();
             });
         }
 
@@ -153,6 +148,16 @@ function registerServices(nectarApp) {
     });
 
     nectarApp.service('SyncService', function($http, $timeout) {
+
+        var lastClientSyncJSONData;
+
+        this.getLastClientSyncJSONData = function() {
+            return lastClientSyncJSONData;
+        };
+
+        this.setLastClientSyncJSONData = function(data) {
+            lastClientSyncJSONData = data;
+        };
 
         // Sync data from the server, update charts with client information, etc.
         this.syncEverything = function(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart) {
