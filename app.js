@@ -201,37 +201,88 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
         var json = SyncService.getLastClientSyncJSONData();
         var newTableData = "";
 
+        // Generate table data for each client
+
         for(var client in json) {
             var state = json[client]["state"];
             var hostname = json[client]["hostname"];
-            if(json[client]["peerInfo"] != null)
+            if(json[client]["peerInfo"] != null) // Check if the server send Peer information for the client
                 var os = json[client]["peerInfo"]["systemInfo"]["os"];
             else
                 var os = "?";
 
             var updates;
             var securityUpdates;
+            var signedInUser = "None";
 
-            if(state === 0) {
+            if(state === 0) { // Update counts are only avaliable if the client is online.
                 updates = json[client]["updates"];
                 securityUpdates = json[client]["securityUpdates"];
+
+                if(updates < 0)
+                    updates = "None";
+                if(securityUpdates < 0)
+                    securityUpdates = "None";
+
+                if(json[client]["signedInUser"] !== "null")
+                    signedInUser = json[client]["signedInUser"];
             } else {
                 updates = "?";
                 securityUpdates = "?";
             }
 
+            var rowColor = "";
+            // Set the row's background based on the client state
+            switch(state) {
+                case 0:
+                    rowColor = "success";
+                    break;
+                case 1:
+                    rowColor = "warning";
+                    break;
+                case 2:
+                    rowColor = "info";
+                    break;
+                case 3:
+                    rowColor = "active";
+                    break;
+                case 4:
+                    rowColor = "danger";
+                    break;
+            }
+
+            var osTd = os;
+            switch(os) {
+                case "linux":
+                    osTd = "<img src=\"assets/linux-logo.png\" /> Linux";
+                    break;
+                case "win32":
+                case "win64":
+                    osTd = "<img src=\"assets/win10-logo.png\" /> Windows";
+                    break;
+            }
+
             newTableData = newTableData +
             `
-            <tr>
+            <tr class="bold paddedTable ` + rowColor + `">
                 <td>` + hostname + ` </td>
                 <td>` + convertStateToFriendly(state) + ` </td>
-                <td>` + os + ` </td>
+                <td>` + osTd + ` </td>
                 <td>` + updates + ` </td>
                 <td>` + securityUpdates + ` </td>
+                <td>` + signedInUser + ` </td>
+
+                <td>
+                    <div class="btn-group-sm btn-group-justified">
+                        <a href="javascript:void(0)" class="btn btn-primary btn-fab-mini"><i class="material-icons">build</i></a>
+                        <a href="javascript:void(0)" class="btn btn-danger btn-fab-mini"><i class="material-icons">delete_forever</i></a>
+                    </div>
+                </td>
             </tr>
             `;
         }
 
+        // Set the new table data
         document.getElementById("modalClientViewTableBody").innerHTML = newTableData;
     };
 
@@ -249,6 +300,10 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
         $("#modalUserRemove").modal("toggle");
         console.log("opened user remove modal.");
     };
+
+    $scope.deleteClient = function(uuid) {
+        // TODO
+    }
 
     $scope.registerClient = function() {
         ServerOperationsService.registerClient(LoginService, $scope, $rootScope); // Register the client
