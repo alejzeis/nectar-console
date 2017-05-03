@@ -63,7 +63,7 @@ function convertStateToFriendly(state) {
 
 // ANGULAR -------------------------------------------------------------------------------------------------------
 
-var nectarApp = angular.module('nectarWebApp', ["ngRoute"], function($httpProvider) {
+var nectarApp = angular.module('nectarWebApp', ["ngSanitize", "ngRoute"], function($httpProvider) {
     $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
 
     /**
@@ -199,7 +199,7 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
         console.log("Opened client view modal.");
 
         var json = SyncService.getLastClientSyncJSONData();
-        var newTableData = "";
+        var newTableData = [];
 
         // Generate table data for each client
 
@@ -220,9 +220,9 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
                 securityUpdates = json[client]["securityUpdates"];
 
                 if(updates < 0)
-                    updates = "None";
+                    updates = "N/A";
                 if(securityUpdates < 0)
-                    securityUpdates = "None";
+                    securityUpdates = "N/A";
 
                 if(json[client]["signedInUser"] !== "null")
                     signedInUser = json[client]["signedInUser"];
@@ -262,7 +262,18 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
                     break;
             }
 
-            newTableData = newTableData +
+            newTableData.push({
+                uuid: client,
+                hostname: hostname,
+                state: convertStateToFriendly(state),
+                os: osTd,
+                updates: updates,
+                securityUpdates: securityUpdates,
+                signedInUser: signedInUser,
+                trClass: rowColor
+            });
+
+            /*newTableData = newTableData +
             `
             <tr class="bold paddedTable ` + rowColor + `">
                 <td>` + hostname + ` </td>
@@ -275,15 +286,17 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
                 <td>
                     <div class="btn-group-sm btn-group-justified">
                         <a href="javascript:void(0)" class="btn btn-primary btn-fab-mini"><i class="material-icons">build</i></a>
-                        <a href="javascript:void(0)" class="btn btn-danger btn-fab-mini"><i class="material-icons">delete_forever</i></a>
+                        <a class="btn btn-danger btn-fab-mini" ng-click="deleteClient('` + client + `')"><i class="material-icons">delete_forever</i></a>
                     </div>
                 </td>
             </tr>
-            `;
+            `;*/
         }
 
         // Set the new table data
-        document.getElementById("modalClientViewTableBody").innerHTML = newTableData;
+        //document.getElementById("modalClientViewTableBody").innerHTML = newTableData;
+
+        $scope.clientViewData = newTableData;
     };
 
     $scope.openClientRegisterModal = function() {
@@ -302,7 +315,7 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
     };
 
     $scope.deleteClient = function(uuid) {
-        // TODO
+        console.log("Deleting client " + uuid);
     }
 
     $scope.registerClient = function() {

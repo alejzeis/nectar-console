@@ -92,7 +92,20 @@
                                 </tr>
                             </thead>
                             <tbody id="modalClientViewTableBody">
-
+                                <tr class="bold paddedTable" ng-repeat="client in clientViewData" ng-class="client.trClass">
+                                    <td>{{client.hostname}}</td>
+                                    <td>{{client.state}}</td>
+                                    <td ng-bind-html="client.os"></td>
+                                    <td>{{client.updates}}</td>
+                                    <td>{{client.securityUpdates}}</td>
+                                    <td>{{client.signedInUser}}</td>
+                                    <td>
+                                        <div class="btn-group-sm btn-group-justified">
+                                            <a class="btn btn-primary btn-fab-mini"><i class="material-icons">build</i></a>
+                                            <a class="btn btn-danger btn-fab-mini" ng-click="deleteClient(client.uuid)"><i class="material-icons">delete_forever</i></a>
+                                        </div>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
