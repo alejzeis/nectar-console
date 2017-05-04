@@ -7,7 +7,7 @@ const SERVER_PORT = "8080";
 const URL_PREFIX = URL_PROTOCOL + "://" + SERVER_ADDR + ":" + SERVER_PORT + "/";
 
 const API_VERSION_MAJOR = "4";
-var API_VERSION_MINOR = "2";
+var API_VERSION_MINOR = "4";
 
 var SERVER_SOFTWARE = "Unknown";
 var SERVER_SOFTWARE_VERSION = "Unknown";
