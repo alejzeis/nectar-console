@@ -182,6 +182,11 @@ nectarApp.controller('LoginController', function LoginController($scope, $locati
 nectarApp.controller('PanelController', function PanelController($scope, $rootScope, $http, $timeout, LoginService, KeyService, SyncService, ServerOperationsService) {
     $scope.init = function() {
         $("#clientPanelFailureAlert").hide();
+
+        $("#clientViewInfoAlert").hide();
+        $("#clientViewSuccessAlert").hide();
+        $("#clientViewFailureAlert").hide();
+
         $('#userPanelSuccessAlert').hide();
         $('#userPanelFailureAlert').hide();
 
@@ -194,10 +199,7 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
         LoginService.doLogout(LoginService, $scope, $rootScope);
     };
 
-    $scope.openClientsViewModal = function() {
-        $("#modalClientView").modal("toggle");
-        console.log("Opened client view modal.");
-
+    $scope.regenerateClientViewData = function(doApply) {
         var json = SyncService.getLastClientSyncJSONData();
         var newTableData = [];
 
@@ -272,31 +274,26 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
                 signedInUser: signedInUser,
                 trClass: rowColor
             });
-
-            /*newTableData = newTableData +
-            `
-            <tr class="bold paddedTable ` + rowColor + `">
-                <td>` + hostname + ` </td>
-                <td>` + convertStateToFriendly(state) + ` </td>
-                <td>` + osTd + ` </td>
-                <td>` + updates + ` </td>
-                <td>` + securityUpdates + ` </td>
-                <td>` + signedInUser + ` </td>
-
-                <td>
-                    <div class="btn-group-sm btn-group-justified">
-                        <a href="javascript:void(0)" class="btn btn-primary btn-fab-mini"><i class="material-icons">build</i></a>
-                        <a class="btn btn-danger btn-fab-mini" ng-click="deleteClient('` + client + `')"><i class="material-icons">delete_forever</i></a>
-                    </div>
-                </td>
-            </tr>
-            `;*/
         }
 
-        // Set the new table data
-        //document.getElementById("modalClientViewTableBody").innerHTML = newTableData;
+        if(doApply) {
+            $scope.$apply(function() {
+                $scope.clientViewData = newTableData;
+            });
+        } else {
+            $scope.clientViewData = newTableData;
+        }
+    }
 
-        $scope.clientViewData = newTableData;
+    $scope.openClientsViewModal = function() {
+        $("#clientViewInfoAlert").hide();
+        $("#clientViewSuccessAlert").hide();
+        $("#clientViewFailureAlert").hide();
+
+        $("#modalClientView").modal("toggle");
+        console.log("Opened client view modal.");
+
+        $scope.regenerateClientViewData(false);
     };
 
     $scope.openClientRegisterModal = function() {
@@ -314,9 +311,28 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
         console.log("opened user remove modal.");
     };
 
-    $scope.deleteClient = function(uuid) {
-        console.log("Deleting client " + uuid);
-    }
+    $scope.deleteClient = function(uuid, hostname) {
+        console.log("Opening confirm modal for deleting client " + uuid);
+
+        $("#modalClientView").modal("toggle"); // Close Client View modal
+
+        $scope.deletingClientHostname = hostname;
+        $scope.deletingClientUUID = uuid;
+
+        $("#modalClientViewDeleteClient").modal("toggle"); // Open Confirm dialog
+    };
+
+    $scope.confirmDeleteClient = function(uuid) {
+        console.log("Got confirmation, Deleting client " + uuid);
+
+        $("#modalClientViewDeleteClient").modal("toggle"); // Close confirm dialog
+        $("#modalClientView").modal("toggle"); // Re-open client view modal.
+
+        document.getElementById("clientViewInfoAlertText").innerHTML = "Deleting client...";
+        $("#clientViewInfoAlert").show();
+
+        ServerOperationsService.removeClient(LoginService, $scope, $rootScope, uuid);
+    };
 
     $scope.registerClient = function() {
         ServerOperationsService.registerClient(LoginService, $scope, $rootScope); // Register the client

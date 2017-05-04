@@ -164,6 +164,7 @@ function registerServices(nectarApp) {
             if(!LoginService.getUserLoggedIn()) return;
 
             syncUsers(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart);
+            $scope.regenerateClientViewData(true);
         }
     });
 
@@ -196,7 +197,31 @@ function registerServices(nectarApp) {
                 document.getElementById("clientPanelFailureAlertText").innerHTML = "Failed to register client! \"" + xhr.responseText + "\"";
                 $('#clientPanelFailureAlert').show();
             });
-        }
+        };
+
+        this.removeClient = function(LoginService, $scope, $rootScope, uuid) {
+            if(!LoginService.getUserLoggedIn()) return;
+
+            $.get(URL_PREFIX + 'nectar/api/v/' + API_VERSION_MAJOR + "/" + API_VERSION_MINOR + "/auth/removeClient?token="
+                + LoginService.getSessionToken() + "&uuid=" + uuid
+            ).done(function(data, status, xhr) {
+                console.log("Got response for removeUser SUCCESS: " + xhr.status + " " + xhr.statusText);
+
+                $("#clientViewInfoAlert").hide();
+                $("#clientViewFailureAlert").hide();
+
+                document.getElementById("clientViewSuccessAlertText").innerHTML = "Successfully deleted the client!";
+                $("#clientViewSuccessAlert").show();
+            }).fail(function(xhr, textStatus, errorThrown) {
+                console.error("Got response for removeUser FAILURE: " + xhr.status + " " + xhr.statusText);
+
+                $("#clientViewInfoAlert").hide();
+                $("#clientViewSuccessAlert").hide();
+
+                document.getElementById("clientViewFailureAlertText").innerHTML = "Failed to delete client! \"" + xhr.responseText + "\"";
+                $("#clientViewFailureAlert").show();
+            });
+        };
 
         this.registerUser = function(LoginService, $scope, $rootScope, userData) {
             if(!LoginService.getUserLoggedIn()) return;
