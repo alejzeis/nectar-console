@@ -9,3 +9,8 @@
 .paddedTable {
     padding: 10px;
 }
+
+textarea {
+    overflow: scroll;
+    resize: none;
+}

@@ -276,13 +276,14 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
             });
         }
 
-        if(doApply) {
+        /*if(doApply) {
             $scope.$apply(function() {
                 $scope.clientViewData = newTableData;
             });
         } else {
             $scope.clientViewData = newTableData;
-        }
+        }*/
+        $scope.clientViewData = newTableData;
     }
 
     $scope.openClientsViewModal = function() {
