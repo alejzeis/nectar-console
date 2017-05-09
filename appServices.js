@@ -271,5 +271,9 @@ function registerServices(nectarApp) {
                 $('#userPanelFailureAlert').show();
             });
         };
+
+        this.addOperationToQueue = function(LoginService, $scope, $rootScope, targetUUID, payload) {
+            
+        };
     });
 }

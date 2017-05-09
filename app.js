@@ -269,6 +269,7 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
                 hostname: hostname,
                 state: convertStateToFriendly(state),
                 os: osTd,
+                osStr: os,
                 updates: updates,
                 securityUpdates: securityUpdates,
                 signedInUser: signedInUser,
@@ -286,6 +287,8 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
         $scope.clientViewData = newTableData;
     }
 
+// ================================== OPEN MODAL FUNCTIONS =================================================
+
     $scope.openClientsViewModal = function() {
         $("#clientViewInfoAlert").hide();
         $("#clientViewSuccessAlert").hide();
@@ -295,6 +298,14 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
         console.log("Opened client view modal.");
 
         $scope.regenerateClientViewData(false);
+    };
+
+    $scope.openClientSingle = function(client) {
+        $("#modalClientView").modal("toggle"); // Close client view modal
+
+        $scope.selectedClient = client;
+
+        $("#modalClientViewSingle").modal("toggle"); // Open single client view
     };
 
     $scope.openClientRegisterModal = function() {
@@ -311,6 +322,8 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
         $("#modalUserRemove").modal("toggle");
         console.log("opened user remove modal.");
     };
+
+// ================================== MODAL BUTTON FUNCTIONS =================================================
 
     $scope.deleteClient = function(uuid, hostname) {
         console.log("Opening confirm modal for deleting client " + uuid);
@@ -360,6 +373,12 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
 
         $("#modalUserRemove").modal("toggle");
     };
+
+    $scope.updateAllClients = function() {
+        
+    }
+
+    // Scope Variables Init
 
     $scope.clientsOnline = 0;
     $scope.serverName = SERVER_ADDR;

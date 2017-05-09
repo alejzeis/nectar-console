@@ -71,6 +71,25 @@
             </div>
         </div>
 
+        <div class="modal fade" id="modalClientViewSingle" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h3><i class="material-icons">dns</i> Client "{{selectedClient.hostname}}"</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="jumbotron">
+                            <h5 class="bold">Client UUID: {{selectedClient.uuid}}</h5>
+                            <h5 class="bold">Client Operating System: {{selectedClient.osStr}}</h5>
+                            <h5 class="bold">Signed In User: {{selectedClient.signedInUser}}</h5>
+                            <h5 class="bold">Update Count: {{selectedClient.updates}} update(s), {{selectedClient.securityUpdates}} security update(s)</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="modal fade" id="modalClientView" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -129,7 +148,7 @@
                                     <td>{{client.signedInUser}}</td>
                                     <td>
                                         <div class="btn-group-sm btn-group-justified">
-                                            <a class="btn btn-primary btn-fab-mini"><i class="material-icons">build</i></a>
+                                            <a class="btn btn-primary btn-fab-mini" ng-click="openClientSingle(client)"><i class="material-icons">build</i></a>
                                             <a class="btn btn-danger btn-fab-mini" ng-click="deleteClient(client.uuid, client.hostname)"><i class="material-icons">delete_forever</i></a>
                                         </div>
                                     </td>
