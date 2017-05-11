@@ -9,6 +9,16 @@ const URL_PREFIX = URL_PROTOCOL + "://" + SERVER_ADDR + ":" + SERVER_PORT + "/";
 const API_VERSION_MAJOR = "4";
 var API_VERSION_MINOR = "4";
 
+const OPERATION_DO_UPDATE = 0;
+const OPERATION_INSTALL_PACKAGE = 1;
+const OPERATION_UPDATE_CLIENT_EXECUTABLE = 2;
+const OPERATION_SET_TIMEZONE = 20;
+const OPERATION_SET_HOSTNAME = 21;
+const OPERATION_DEPLOY_SCRIPT = 30;
+const OPERATION_DO_SHUTDOWN = 40;
+const OPERATION_DO_REBOOT = 41;
+const OPERATION_BROADCAST_MESSAGE = 50;
+
 var SERVER_SOFTWARE = "Unknown";
 var SERVER_SOFTWARE_VERSION = "Unknown";
 
@@ -268,6 +278,7 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
                 uuid: client,
                 hostname: hostname,
                 state: convertStateToFriendly(state),
+                stateInt: state,
                 os: osTd,
                 osStr: os,
                 updates: updates,
@@ -375,7 +386,34 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
     };
 
     $scope.updateAllClients = function() {
+        $("#clientViewInfoAlert").hide();
+        $("#clientViewSuccessAlert").hide();
+        $("#clientViewFailureAlert").hide();
 
+        document.getElementById("clientViewInfoAlertText").innerHTML = "Sending update signal to all connected clients...";
+        $("#clientViewInfoAlert").show();
+
+        var targets = [];
+        for(var i = 0; i < $scope.clientViewData.length; i++) {
+            if($scope.clientViewData[i].stateInt !== 0) // Skip clients which are not connected
+                continue;
+
+            targets.push($scope.clientViewData[i].uuid);
+        }
+
+        ServerOperationsService.addOperationToQueue(LoginService, $scope, $rootScope, OPERATION_DO_UPDATE, targets, {}, function(success, errorText) {
+            if(success) {
+                $("#clientViewInfoAlert").hide();
+
+                document.getElementById("clientViewSuccessAlertText").innerHTML = "Successfully sent update signal to all connected clients!";
+                $("#clientViewSuccessAlert").show();
+            } else {
+                $("#clientViewInfoAlert").hide();
+
+                document.getElementById("clientViewFailureAlertText").innerHTML = "Failed to send update signal! \"" + errorText + "\"";
+                $("#clientViewFailureAlert").show();
+            }
+        });
     }
 
     // Scope Variables Init

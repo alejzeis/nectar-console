@@ -278,8 +278,28 @@ function registerServices(nectarApp) {
             });
         };
 
-        this.addOperationToQueue = function(LoginService, $scope, $rootScope, targetUUID, payload) {
+        this.addOperationToQueue = function(LoginService, $scope, $rootScope, opId, targets, additionalData, cb) {
+            var opData = {
+                id: opId,
+                targets: targets,
+                additionalData: additionalData
+            };
 
+            $.post(URL_PREFIX + 'nectar/api/v/' + API_VERSION_MAJOR + "/" + API_VERSION_MINOR + "/operation/addToQueue",
+                {
+                    token: LoginService.getSessionToken(),
+                    opData: utf8tob64u(JSON.stringify(opData))
+                }
+            ).done(function(data, status, xhr) {
+                console.log("Got response for addToQueue SUCCESS: " + xhr.status + " " + xhr.statusText);
+
+                cb(true);
+            }).fail(function(xhr, textStatus, errorThrown) {
+                // TODO: seperate messages based on status code
+                console.error("Got response for addToQueue FAILURE: " + xhr.status + " " + xhr.statusText);
+
+                cb(false, xhr.responseText);
+            });
         };
     });
 }
