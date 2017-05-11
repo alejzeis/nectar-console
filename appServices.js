@@ -163,8 +163,9 @@ function registerServices(nectarApp) {
         this.syncEverything = function(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart) {
             if(!LoginService.getUserLoggedIn()) return;
 
-            syncUsers(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart);
-            $scope.regenerateClientViewData(true);
+            syncUsers(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart, function() {
+                $scope.regenerateClientViewData(true);
+            });
         }
     });
 
@@ -212,6 +213,11 @@ function registerServices(nectarApp) {
 
                 document.getElementById("clientViewSuccessAlertText").innerHTML = "Successfully deleted the client!";
                 $("#clientViewSuccessAlert").show();
+
+                $scope.$apply(function() {
+                    $scope.regenerateClientViewData();
+                    console.log("regenerated.");
+                });
             }).fail(function(xhr, textStatus, errorThrown) {
                 console.error("Got response for removeUser FAILURE: " + xhr.status + " " + xhr.statusText);
 
@@ -273,7 +279,7 @@ function registerServices(nectarApp) {
         };
 
         this.addOperationToQueue = function(LoginService, $scope, $rootScope, targetUUID, payload) {
-            
+
         };
     });
 }

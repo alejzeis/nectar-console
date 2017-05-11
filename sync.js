@@ -64,14 +64,14 @@ function constructClientsChartData(json, $scope) {
 }
 
 
-function syncClients(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart) {
+function syncClients(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart, cb) {
     $.get(URL_PREFIX + 'nectar/api/v/' + API_VERSION_MAJOR + "/" + API_VERSION_MINOR + "/query/queryClients?token=" + LoginService.getSessionToken())
     .done(function(data, status, xhr) {
         console.log("Got response for queryClients SUCCESS: " + xhr.status + " " + xhr.statusText);
 
         var json = KJUR.jws.JWS.readSafeJSONString(xhr.responseText);
         SyncService.setLastClientSyncJSONData(json);
-        
+
         var data = constructClientsChartData(json, $scope);
 
         if(inital) {
@@ -182,6 +182,8 @@ function syncClients(LoginService, SyncService, $scope, $rootScope, $timeout, in
             operationsChart.update();
         }
 
+        cb();
+
         $timeout(function() {
             SyncService.syncEverything(LoginService, SyncService, $scope, $rootScope, $timeout, false, clientsChart, updatesChart, operationsChart, usersChart);
         }, 5000); // Sync every 5 seconds
@@ -191,13 +193,15 @@ function syncClients(LoginService, SyncService, $scope, $rootScope, $timeout, in
 
         if(xhr.status !== 403) alert("Failed to query server! (" + xhr.status + " " + xhr.statusText + ")");
 
+        cb();
+
         $timeout(function() {
             SyncService.syncEverything(LoginService, SyncService, $scope, $rootScope, $timeout, false, clientsChart, updatesChart, operationsChart, usersChart);
         }, 5000); // Sync every 5 seconds
     });
 }
 
-function syncUsers(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart) {
+function syncUsers(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart, cb) {
     $.get(URL_PREFIX + 'nectar/api/v/' + API_VERSION_MAJOR + "/" + API_VERSION_MINOR + "/query/queryUsers?token=" + LoginService.getSessionToken())
     .done(function(data, status, xhr) {
         console.log("Got response for queryUsers SUCCESS: " + xhr.status + " " + xhr.statusText);
@@ -246,13 +250,13 @@ function syncUsers(LoginService, SyncService, $scope, $rootScope, $timeout, init
             usersChart.update();
         }
 
-        syncClients(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart);
+        syncClients(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart, cb);
     }).fail(function(xhr, textStatus, errorThrown) {
         // TODO: seperate messages based on status code
         console.error("Got response for queryClients FAILURE: " + xhr.status + " " + xhr.statusText);
 
         if(xhr.status !== 403) alert("Failed to query server! (" + xhr.status + " " + xhr.statusText + ")");
 
-        syncClients(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart);
+        syncClients(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart, cb);
     });
 }
