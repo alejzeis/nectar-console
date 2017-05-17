@@ -87,6 +87,12 @@
                             <h5 class="bold">Signed In User: {{selectedClient.signedInUser}}</h5>
                             <h5 class="bold">Update Count: {{selectedClient.updates}} update(s), {{selectedClient.securityUpdates}} security update(s)</h5>
                         </div>
+                        <form role="form" class="form-horizontal">
+                            <fieldset>
+                                <button type="submit" id="btnClientRegisterModalRegister" class="btn btn-primary btn-block" ng-click="changeHostname(selectedClient)"><i class="material-icons">perm_identity</i> Change hostname</button>
+                                <button type="submit" id="btnClientRegisterModalRegister" class="btn btn-primary btn-block" ng-click="changeTimezone(selectedClient)"><i class="material-icons">alarm</i> Change timezone</button>
+                            </fieldset>
+                        </form>
                     </div>
                 </div>
             </div>
