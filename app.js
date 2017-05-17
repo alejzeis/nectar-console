@@ -398,6 +398,9 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
             if($scope.clientViewData[i].stateInt !== 0) // Skip clients which are not connected
                 continue;
 
+            if($scope.clientViewData[i].updates < 1) // Skip clients which don't have avaliable updates
+                continue;
+
             targets.push($scope.clientViewData[i].uuid);
         }
 
