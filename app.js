@@ -417,7 +417,43 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
                 $("#clientViewFailureAlert").show();
             }
         });
-    }
+    };
+
+    $scope.changeHostname = function(selectedClient) {
+        console.log("Opening change hostname modal for client " + selectedClient.uuid);
+
+        $("#modalClientViewSingle").modal("toggle"); // Close Single Client View modal
+
+        $("#modalClientChangeHostname").modal("toggle"); // Open change hostname modal
+    };
+
+    $scope.doChangeHostname = function(newHostname) {
+        console.log("Switching hostname for " + $scope.selectedClient.uuid + " to " + newHostname);
+
+        $("#modalClientChangeHostname").modal("toggle"); // Close change hostname modal
+        $("#modalClientView").modal("toggle"); // Open Client View modal
+
+        $("#clientViewInfoAlert").hide();
+        $("#clientViewSuccessAlert").hide();
+        $("#clientViewFailureAlert").hide();
+
+        document.getElementById("clientViewInfoAlertText").innerHTML = "Sending change hostname signal...";
+        $("#clientViewInfoAlert").show();
+
+        ServerOperationsService.addOperationToQueue(LoginService, $scope, $rootScope, OPERATION_SET_HOSTNAME, [$scope.selectedClient.uuid], { hostname: newHostname }, function(success, errorText) {
+            if(success) {
+                $("#clientViewInfoAlert").hide();
+
+                document.getElementById("clientViewSuccessAlertText").innerHTML = "Successfully sent change hostname signal!";
+                $("#clientViewSuccessAlert").show();
+            } else {
+                $("#clientViewInfoAlert").hide();
+
+                document.getElementById("clientViewFailureAlertText").innerHTML = "Failed to send change hostname signal! \"" + errorText + "\"";
+                $("#clientViewFailureAlert").show();
+            }
+        });
+    };
 
     // Scope Variables Init
 
