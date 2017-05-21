@@ -128,6 +128,36 @@
             </div>
         </div>
 
+        <div class="modal fade" id="modalClientChangeTimezone" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h3><i class="material-icons">alarm</i> Changing Timezone for "{{selectedClient.hostname}}"</h3>
+                    </div>
+                    <div class="modal-body">
+                        <form role="form" class="form-horizontal">
+                            <fieldset>
+                                <div class="form-group">
+                                    <label for="inputChangeTimezone" class="col-md-2 control-label">New Timezone</label>
+
+                                    <div class="col-md-10">
+                                        <select id="inputChangeHostname" class="form-control" ng-model="changeTimezoneForm.timezone">
+                                            <option ng-repeat="timezone in timezoneOptions" value="{{timezone.name}}">{{timezone.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary btn-block" ng-click="doChangeTimezone(changeTimezoneForm.timezone)">Change Timezone</button>
+                                </div>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="modal fade" id="modalClientView" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">

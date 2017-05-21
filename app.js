@@ -427,6 +427,14 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
         $("#modalClientChangeHostname").modal("toggle"); // Open change hostname modal
     };
 
+    $scope.changeTimezone = function(selectedClient) {
+        console.log("Opening change timezone modal for client " + selectedClient.uuid);
+
+        $("#modalClientViewSingle").modal("toggle"); // Close Single Client View modal
+
+        $("#modalClientChangeTimezone").modal("toggle"); // Open change timezone modal
+    };
+
     $scope.doChangeHostname = function(newHostname) {
         console.log("Switching hostname for " + $scope.selectedClient.uuid + " to " + newHostname);
 
@@ -455,6 +463,34 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
         });
     };
 
+    $scope.doChangeTimezone = function(newTimezone) {
+        console.log("Switching timezone for " + $scope.selectedClient.uuid + " to " + newTimezone);
+
+        $("#modalClientChangeTimezone").modal("toggle"); // Close change timezone modal
+        $("#modalClientView").modal("toggle"); // Open Client View modal
+
+        $("#clientViewInfoAlert").hide();
+        $("#clientViewSuccessAlert").hide();
+        $("#clientViewFailureAlert").hide();
+
+        document.getElementById("clientViewInfoAlertText").innerHTML = "Sending change timezone signal...";
+        $("#clientViewInfoAlert").show();
+
+        ServerOperationsService.addOperationToQueue(LoginService, $scope, $rootScope, OPERATION_SET_TIMEZONE, [$scope.selectedClient.uuid], { timezone: newTimezone }, function(success, errorText) {
+            if(success) {
+                $("#clientViewInfoAlert").hide();
+
+                document.getElementById("clientViewSuccessAlertText").innerHTML = "Successfully sent change timezone signal!";
+                $("#clientViewSuccessAlert").show();
+            } else {
+                $("#clientViewInfoAlert").hide();
+
+                document.getElementById("clientViewFailureAlertText").innerHTML = "Failed to send change timezone signal! \"" + errorText + "\"";
+                $("#clientViewFailureAlert").show();
+            }
+        });
+    };
+
     // Scope Variables Init
 
     $scope.clientsOnline = 0;
@@ -462,4 +498,23 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
 
     $scope.serverSoftware = SERVER_SOFTWARE;
     $scope.serverSoftwareVersion = SERVER_SOFTWARE_VERSION;
+
+    $scope.timezoneOptions = [];
+
+    // Set the timezone selection dropdown content based on timezones.txt
+    // Timezones are presented in the Windows format to be more user friendly
+    $.get(
+        "timezones.txt"
+    ).done(function(data, status, xhr) {
+        console.log("Server returned " + xhr.status + " for timezones.txt");
+
+        var lines = xhr.responseText.split("\n");
+        for(line in lines) {
+            if(lines[line].length < 2) continue;
+            $scope.timezoneOptions.push({name: lines[line]});
+        }
+    }).fail(function(xhr, textStatus, errorThrown) {
+        console.error("Failed to get timezones.txt from server, returned: " + xhr.status);
+        alert("Could not get list of timezones from server, returned: " + xhr.status + " " + xhr.statusText);
+    });
 });
