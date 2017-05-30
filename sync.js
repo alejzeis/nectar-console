@@ -262,61 +262,38 @@ function syncUsers(LoginService, SyncService, $scope, $rootScope, $timeout, init
 }
 
 function syncEventLog(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart, cb) {
-    $.get(URL_PREFIX + 'nectar/api/v/' + API_VERSION_MAJOR + "/" + API_VERSION_MINOR + "/query/queryEventLog?token=" + LoginService.getSessionToken() + "&entryCount=250")
-    .done(function(data, status, xhr) {
-        console.log("Got response for queryEventLog SUCCESS: " + xhr.status + " " + xhr.statusText);
+    // If inital is true (first time querying the server) then get the whole event log.
+    if(inital) {
+        $.get(URL_PREFIX + 'nectar/api/v/' + API_VERSION_MAJOR + "/" + API_VERSION_MINOR + "/query/queryEventLog?token=" + LoginService.getSessionToken() + "&entryCount=150")
+        .done(function(data, status, xhr) {
+            console.log("Got response for queryEventLog SUCCESS: " + xhr.status + " " + xhr.statusText);
 
-        var json = KJUR.jws.JWS.readSafeJSONString(xhr.responseText);
-        var data = constructUsersChartData(json, $scope);
+            document.getElementById("eventLog").innerHTML = xhr.responseText;
 
-        if(inital) {
-            var usersCtx = document.getElementById("usersChart");
+            syncClients(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart, cb);
+        }).fail(function(xhr, textStatus, errorThrown) {
+            // TODO: seperate messages based on status code
+            console.error("Got response for queryEventLog FAILURE: " + xhr.status + " " + xhr.statusText);
 
-            usersChart = new Chart(usersCtx, {
-                type: 'pie',
-                data: {
-                    labels: [
-                        "Logged In",
-                        "Logged Out",
-                        "Logged In (Admin)",
-                        "Logged Out (Admin)"
-                    ],
-                    datasets: [
-                        {
-                            data: data,
-                            backgroundColor: [
-                                "#20f718",
-                                "#4fffbe",
-                                "#e1ff77",
-                                "#ffd334"
-                            ],
-                            hoverBackgroundColor: [
-                                "#20f718",
-                                "#4fffbe",
-                                "#e1ff77",
-                                "#ffd334"
-                            ]
-                        }
-                    ]
-                },
-                options: {
-                    animation:{
-                        animateScale: true
-                    }
-                }
-            });
-        } else {
-            usersChart.data.datasets[0].data = data;
-            usersChart.update();
-        }
+            if(xhr.status !== 403) alert("Failed to query server! (" + xhr.status + " " + xhr.statusText + ")");
 
-        syncClients(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart, cb);
-    }).fail(function(xhr, textStatus, errorThrown) {
-        // TODO: seperate messages based on status code
-        console.error("Got response for queryClients FAILURE: " + xhr.status + " " + xhr.statusText);
+            syncClients(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart, cb);
+        });
+    } else {
+        $.get(URL_PREFIX + "nectar/api/v/" + API_VERSION_MAJOR + "/" + API_VERSION_MINOR + "/query/queryEventLogSince?token=" + LoginService.getSessionToken() + "&timestamp=" + SyncService.getLastSyncTime())
+        .done(function(data, status, xhr) {
+            console.log("Got response for queryEventLogSince SUCCESS: " + xhr.status + " " + xhr.statusText);
 
-        if(xhr.status !== 403) alert("Failed to query server! (" + xhr.status + " " + xhr.statusText + ")");
+            document.getElementById("eventLog").innerHTML += xhr.responseText;
 
-        syncClients(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart, cb);
-    });
+            syncClients(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart, cb);
+        }).fail(function(xhr, textStatus, errorThrown) {
+            // TODO: seperate messages based on status code
+            console.error("Got response for queryEventLogSince FAILURE: " + xhr.status + " " + xhr.statusText);
+
+            if(xhr.status !== 403) alert("Failed to query server! (" + xhr.status + " " + xhr.statusText + ")");
+
+            syncClients(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart, cb);
+        });
+    }
 }

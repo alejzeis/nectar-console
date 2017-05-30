@@ -150,13 +150,22 @@ function registerServices(nectarApp) {
     nectarApp.service('SyncService', function($http, $timeout) {
 
         var lastClientSyncJSONData;
+        var lastSyncTime;
 
         this.getLastClientSyncJSONData = function() {
             return lastClientSyncJSONData;
         };
 
+        this.getLastSyncTime = function() {
+            return lastSyncTime;
+        };
+
         this.setLastClientSyncJSONData = function(data) {
             lastClientSyncJSONData = data;
+        };
+
+        this.setLastSyncTime = function(time) {
+            lastSyncTime = time;
         };
 
         // Sync data from the server, update charts with client information, etc.
@@ -164,6 +173,8 @@ function registerServices(nectarApp) {
             if(!LoginService.getUserLoggedIn()) return;
 
             syncUsers(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart, function() {
+                SyncService.setLastSyncTime(Date.now());
+
                 $scope.regenerateClientViewData(true);
             });
         }
