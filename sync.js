@@ -31,7 +31,7 @@ function constructUsersChartData(json, $scope) {
 function constructClientsChartData(json, $scope) {
     var data = [0, 0, 0, 0, 0];
     var updatesNeeded = [0, 0];
-    var operations = [0, 0];
+    var operations = [0, 0, 0, 0];
 
     var clientsOnline = 0;
 
@@ -51,9 +51,24 @@ function constructClientsChartData(json, $scope) {
                     updatesNeeded[1]++;
                 } else updatesNeeded[0]++;
 
-                if(json[client]["operationStatus"] !== null && json[client]["operationStatus"] === 0) {
-                    operations[0]++;
-                } else if(json[client]["operationStatus"] !== null && json[client]["operationStatus"] === 1) operations[1]++;
+                if(json[client]["operationStatus"] !== null) {
+                    switch(json[client]["operationStatus"]) {
+                        case 0:
+                            operations[0]++;
+                            break;
+                        case 1:
+                            operations[3]++;
+                            break;
+                        case 2:
+                            operations[1]++;
+                            break;
+                        case 3:
+                            operations[2]++;
+                            break;
+                        default:
+                            break;
+                    }
+                }
                 break;
         }
     }
@@ -149,6 +164,8 @@ function syncClients(LoginService, SyncService, $scope, $rootScope, $timeout, in
                 data: {
                     labels: [
                         "Idle",
+                        "Idle (Succeeded)",
+                        "Idle (Failed)",
                         "Processing"
                     ],
                     datasets: [
@@ -156,10 +173,14 @@ function syncClients(LoginService, SyncService, $scope, $rootScope, $timeout, in
                             data: data.operationsData,
                             backgroundColor: [
                                 "#20f718",
+                                "#9cff99",
+                                "#ff8c00",
                                 "#b784ff",
                             ],
                             hoverBackgroundColor: [
                                 "#20f718",
+                                "#9cff99",
+                                "#ff8c00",
                                 "#b784ff",
                             ]
                         }
