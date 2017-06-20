@@ -6,8 +6,13 @@ const SERVER_PORT = "8080";
 
 const URL_PREFIX = URL_PROTOCOL + "://" + SERVER_ADDR + ":" + SERVER_PORT + "/";
 
-const API_VERSION_MAJOR = "4";
-var API_VERSION_MINOR = "7";
+const API_VERSION_MAJOR = "5";
+var API_VERSION_MINOR = "1";
+
+const OPERATION_STATUS_IDLE = 0;
+const OPERATION_STATUS_IN_PROGRESS = 1;
+const OPERATION_STATUS_SUCCESS = 2;
+const OPERATION_STATUS_FAILED = 3;
 
 const OPERATION_DO_UPDATE = 0;
 const OPERATION_INSTALL_PACKAGE = 1;
@@ -218,16 +223,41 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
         for(var client in json) {
             var state = json[client]["state"];
             var hostname = json[client]["hostname"];
-            if(json[client]["peerInfo"] != null) // Check if the server send Peer information for the client
+            if(json[client]["peerInfo"] != null) {// Check if the server send Peer information for the client
                 var os = json[client]["peerInfo"]["systemInfo"]["os"];
-            else
-                var os = "?";
+                var cpu = json[client]["peerInfo"]["systemInfo"]["cpu"];
+
+                var software = json[client]["peerInfo"]["software"];
+                var softwareVersion = json[client]["peerInfo"]["softwareVersion"];
+            } else
+                var os, cpu, software, softwareVersion = "N/A";
 
             var updates;
             var securityUpdates;
+
+            var operationCount = "N/A";
+            var operationStatus = -1;
+            var operationStatusStr = "N/A";
+            var operationMessage = "N/A";
+
             var signedInUser = "None";
 
-            if(state === 0) { // Update counts are only avaliable if the client is online.
+            if(state === 0) { // Update counts, operation information are only avaliable if the client is online.
+                operationCount = json[client]["operationCount"];
+                operationStatus = json[client]["operationStatus"];
+                operationMessage = json[client]["operationMessage"];
+
+                if(operationStatus === OPERATION_STATUS_IDLE)
+                    operationStatusStr = "IDLE";
+                else if(operationStatus === OPERATION_STATUS_SUCCESS)
+                    operationStatusStr = "Success";
+                else if(operationStatus === OPERATION_STATUS_FAILED)
+                    operationStatusStr = "Failed";
+                else if(operationStatus === OPERATION_STATUS_IN_PROGRESS) {
+                    operationStatusStr = "In Progress";
+                    operationMessage = "Processing...";
+                }
+
                 updates = json[client]["updates"];
                 securityUpdates = json[client]["securityUpdates"];
 
@@ -275,14 +305,21 @@ nectarApp.controller('PanelController', function PanelController($scope, $rootSc
             }
 
             newTableData.push({
+                software: software,
+                softwareVersion: softwareVersion,
                 uuid: client,
                 hostname: hostname,
                 state: convertStateToFriendly(state),
                 stateInt: state,
                 os: osTd,
                 osStr: os,
+                cpu: cpu,
                 updates: updates,
                 securityUpdates: securityUpdates,
+                operationCount: operationCount,
+                operationStatus: operationStatus,
+                operationStatusStr: operationStatusStr,
+                operationMessage: operationMessage,
                 signedInUser: signedInUser,
                 trClass: rowColor
             });

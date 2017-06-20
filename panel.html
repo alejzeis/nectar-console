@@ -82,10 +82,50 @@
                     </div>
                     <div class="modal-body">
                         <div class="jumbotron">
-                            <h5 class="bold">Client UUID: {{selectedClient.uuid}}</h5>
-                            <h5 class="bold">Client Operating System: {{selectedClient.osStr}}</h5>
-                            <h5 class="bold">Signed In User: {{selectedClient.signedInUser}}</h5>
-                            <h5 class="bold">Update Count: {{selectedClient.updates}} update(s), {{selectedClient.securityUpdates}} security update(s)</h5>
+                            <table id="modalClientViewTable" class="table table-striped table-hover">
+                                <tbody>
+                                    <tr class="bold paddedTable">
+                                        <td>Client Software/Version</td>
+                                        <td>{{selectedClient.software}} - {{selectedClient.softwareVersion}}</td>
+                                    </tr>
+                                    <tr class="bold paddedTable">
+                                        <td>Client UUID</td>
+                                        <td>{{selectedClient.uuid}}</td>
+                                    </tr>
+                                    <tr class="bold paddedTable">
+                                        <td>Client OS</td>
+                                        <td>{{selectedClient.osStr}}</td>
+                                    </tr>
+                                    <tr class="bold paddedTable">
+                                        <td>Client CPU</td>
+                                        <td>{{selectedClient.cpu}}</td>
+                                    </tr>
+                                    <tr class="bold paddedTable">
+                                        <td>Signed In User</td>
+                                        <td>{{selectedClient.signedInUser}}</td>
+                                    </tr>
+                                    <tr class="bold paddedTable">
+                                        <td>Updates</td>
+                                        <td>{{selectedClient.updates}}</td>
+                                    </tr>
+                                    <tr class="bold paddedTable">
+                                        <td>Security Updates</td>
+                                        <td>{{selectedClient.securityUpdates}}</td>
+                                    </tr>
+                                    <tr class="bold paddedTable">
+                                        <td>Operations Queued</td>
+                                        <td>{{selectedClient.operationCount}}</td>
+                                    </tr>
+                                    <tr class="bold paddedTable">
+                                        <td>Operation Processing Status</td>
+                                        <td>{{selectedClient.operationStatusStr}}</td>
+                                    </tr>
+                                    <tr class="bold paddedTable">
+                                        <td>Operation Processing Message</td>
+                                        <td>{{selectedClient.operationMessage}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                         <form role="form" class="form-horizontal">
                             <fieldset>
