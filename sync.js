@@ -289,7 +289,10 @@ function syncEventLog(LoginService, SyncService, $scope, $rootScope, $timeout, i
         .done(function(data, status, xhr) {
             console.log("Got response for queryEventLog SUCCESS: " + xhr.status + " " + xhr.statusText);
 
-            document.getElementById("eventLog").innerHTML = xhr.responseText;
+            var json = KJUR.jws.JWS.readSafeJSONString(xhr.responseText);
+            SyncService.setLastSyncEntryId(json["lastEntryId"]);
+
+            document.getElementById("eventLog").innerHTML = json["entries"];
 
             syncClients(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart, cb);
         }).fail(function(xhr, textStatus, errorThrown) {
@@ -301,11 +304,14 @@ function syncEventLog(LoginService, SyncService, $scope, $rootScope, $timeout, i
             syncClients(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart, cb);
         });
     } else {
-        $.get(URL_PREFIX + "nectar/api/v/" + API_VERSION_MAJOR + "/" + API_VERSION_MINOR + "/query/queryEventLogSince?token=" + LoginService.getSessionToken() + "&timestamp=" + SyncService.getLastSyncTime())
+        $.get(URL_PREFIX + "nectar/api/v/" + API_VERSION_MAJOR + "/" + API_VERSION_MINOR + "/query/queryEventLogSince?token=" + LoginService.getSessionToken() + "&entryId=" + SyncService.getLastSyncEntryId())
         .done(function(data, status, xhr) {
             console.log("Got response for queryEventLogSince SUCCESS: " + xhr.status + " " + xhr.statusText);
 
-            document.getElementById("eventLog").innerHTML += xhr.responseText;
+            var json = KJUR.jws.JWS.readSafeJSONString(xhr.responseText);
+            SyncService.setLastSyncEntryId(json["lastEntryId"]);
+
+            document.getElementById("eventLog").innerHTML += json["entries"];
 
             syncClients(LoginService, SyncService, $scope, $rootScope, $timeout, inital, clientsChart, updatesChart, operationsChart, usersChart, cb);
         }).fail(function(xhr, textStatus, errorThrown) {

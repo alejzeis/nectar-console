@@ -6,7 +6,7 @@ const SERVER_PORT = "8080";
 
 const URL_PREFIX = URL_PROTOCOL + "://" + SERVER_ADDR + ":" + SERVER_PORT + "/";
 
-const API_VERSION_MAJOR = "5";
+const API_VERSION_MAJOR = "6";
 var API_VERSION_MINOR = "1";
 
 const OPERATION_STATUS_IDLE = 0;
